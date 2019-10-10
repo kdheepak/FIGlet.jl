@@ -73,21 +73,39 @@ struct FIGHeader
     height::Int
     baseline::Int
     max_length::Int
-    old_layout::Layout
+    old_layout::Int
     comment_lines::Int
     print_direction::Int
-    full_layout::Layout
+    full_layout::Int
     codetag_count::Int
+
+    function FIGHeader(hardblank, height, baseline, max_length, old_layout, comment_lines,
+                       print_direction=0, full_layout=Int(HorizontalSmushingRule2), codetag_count=0
+                      )
+        new(hardblank, height, baseline, max_length, old_layout, comment_lines, print_direction, full_layout, codetag_count)
+    end
 end
 
-function is_valid_magic_header(io)
-    magic = read(io, 4)
-    magic != UInt8['f', 'l', 'f', '2'] && return false # File is not a valid FIGlet Lettering Font format."
+function readmagic(io)
+    magic = read(io, 5)
+    # magic[1:4] != UInt8['f', 'l', 'f', '2'] && error("File is not a valid FIGlet Lettering Font format.")
+    magic[5] != UInt8('a') && @warn "File may be a FLF format but not flf2a."
+    return magic # File has valid FIGlet Lettering Font format magic header.
+end
 
-    b = read(io, 1)
-    b != UInt8('a') || @warn "File is a FLF format but not flf2a."
+function readfont(io)
+    magic = readmagic(io)
 
-    return true # File has valid FIGlet Lettering Font format magic header.
+    header = split(readline(io))
+    fig_header = FIGHeader(
+                           header[1][1],
+                           parse.(Int, header[2:end])...,
+                          )
+    for i in fig_header.comment_lines
+        discard = readline(io)
+    end
+
+    return fig_header
 end
 
 end # module

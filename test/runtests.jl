@@ -3,5 +3,7 @@ using Test
 
 @testset "FIGlet.jl" begin
     iob = IOBuffer(b"flf2a", read=true);
-    @test FIGlet.is_valid_magic_header(iob)
+    @test FIGlet.readmagic(iob) == UInt8['f', 'l', 'f', '2', 'a']
+
+    @test FIGlet.FIGHeader('$', 6, 5, 16, 15, 11) == FIGlet.FIGHeader('$', 6, 5, 16, 15, 11, 0, 2, 0)
 end
