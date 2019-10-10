@@ -1,6 +1,6 @@
-using Figlet
+using FIGlet
 using Test
 
-@testset "Figlet.jl" begin
+@testset "FIGlet.jl" begin
     # Write your own tests here.
 end

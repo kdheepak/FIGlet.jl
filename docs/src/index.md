@@ -1,8 +1,8 @@
-# Figlet.jl
+# FIGlet.jl
 
 ```@index
 ```
 
 ```@autodocs
-Modules = [Figlet]
+Modules = [FIGlet]
 ```

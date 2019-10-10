@@ -1,17 +1,17 @@
-using Documenter, Figlet
+using Documenter, FIGlet
 
 makedocs(;
-    modules=[Figlet],
+    modules=[FIGlet],
     format=Documenter.HTML(),
     pages=[
         "Home" => "index.md",
     ],
-    repo="https://github.com/kdheepak/Figlet.jl/blob/{commit}{path}#L{line}",
-    sitename="Figlet.jl",
+    repo="https://github.com/kdheepak/FIGlet.jl/blob/{commit}{path}#L{line}",
+    sitename="FIGlet.jl",
     authors="Dheepak Krishnamurthy",
     assets=String[],
 )
 
 deploydocs(;
-    repo="github.com/kdheepak/Figlet.jl",
+    repo="github.com/kdheepak/FIGlet.jl",
 )

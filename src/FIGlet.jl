@@ -1,4 +1,4 @@
-module Figlet
+module FIGlet
 
 const DEFAULT_FONT = "standard"
 
@@ -10,7 +10,7 @@ const SHARED_DIRECTORY = "figlet"
 
 
 function figlet_format(text, font=DEFAULT_FONT)
-    fig = Figlet(font)
+    fig = FIGlet(font)
     return render_text(fig, text)
 end
 
@@ -29,29 +29,29 @@ function print_figlet(text, font=DEFAULT_FONT, colors=":")
 end
 
 
-abstract type FigletException <: Exception end
+abstract type FIGletException <: Exception end
 
 """
 Width is not sufficient to print a character
 """
-struct CharNotPrinted <: FigletError end
+struct CharNotPrinted <: FIGletError end
 
 """
 Font can't be located
 """
-struct FontNotFound <: FigletError end
+struct FontNotFound <: FIGletError end
 
 
 """
 Problem parsing a font file
 """
-struct FontError <: FigletError end
+struct FontError <: FIGletError end
 
 
 """
 Color is invalid
 """
-struct InvalidColor <: FigletError end
+struct InvalidColor <: FIGletError end
 
 
 end # module
