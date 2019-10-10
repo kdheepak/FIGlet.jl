@@ -8,28 +8,11 @@ const RESET_COLORS = "\033[0m"
 
 const SHARED_DIRECTORY = "figlet"
 
-
-function figlet_format(text, font=DEFAULT_FONT)
-    fig = FIGlet(font)
-    return render_text(fig, text)
-end
-
-function print_figlet(text, font=DEFAULT_FONT, colors=":")
-    ansiColors = parse_color(colors)
-    if ansiColors:
-        print(stdout, ansiColors))
-    end
-
-    println(figlet_format(text, font))
-
-    if ansiColors:
-        print(stdout, RESET_COLORS.decode('UTF-8', 'replace'))
-        flush(stdout)
-    end
-end
+const FONTFILESUFFIX = ".flf"
+const FONTFILEMAGICNUMBER = "flf2"
 
 
-abstract type FIGletException <: Exception end
+abstract type FIGletError <: Exception end
 
 """
 Width is not sufficient to print a character
