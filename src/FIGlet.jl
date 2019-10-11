@@ -1,9 +1,10 @@
 module FIGlet
 
+import Base
+
 const DEFAULT_FONT = "standard"
 const FONTFILESUFFIX = ".flf"
 const FONTFILEMAGICNUMBER = "flf2"
-
 
 abstract type FIGletError <: Exception end
 
@@ -68,7 +69,7 @@ showing the names of all parameters:
       (See "INTERPRETATION OF LAYOUT PARAMETERS".)
 
 """
-struct FIGHeader
+struct FIGletHeader
     hardblank::Char
     height::Int
     baseline::Int
@@ -79,12 +80,27 @@ struct FIGHeader
     full_layout::Int
     codetag_count::Int
 
-    function FIGHeader(hardblank, height, baseline, max_length, old_layout, comment_lines,
+    function FIGletHeader(hardblank, height, baseline, max_length, old_layout, comment_lines,
                        print_direction=0, full_layout=Int(HorizontalSmushingRule2), codetag_count=0
                       )
+        height < 1 && ( height = 1 )
+        max_length < 1 && ( max_length = 1 )
+        print_direction < 0 && ( print_direction = 0 )
+        # max_length += 100 # Give ourselves some extra room
         new(hardblank, height, baseline, max_length, old_layout, comment_lines, print_direction, full_layout, codetag_count)
     end
 end
+
+struct FIGletChar
+    ord::Char
+    thechar::Matrix{Char}
+end
+
+struct FIGletFont
+    header::FIGletHeader
+    font_characters::Dict{Char,FIGletChar}
+end
+
 
 function readmagic(io)
     magic = read(io, 5)
@@ -93,19 +109,64 @@ function readmagic(io)
     return magic # File has valid FIGlet Lettering Font format magic header.
 end
 
+function readfontchar(io, ord, height)
+
+    s = readline(io)
+    width = length(s)-1
+    thechar = Matrix{Char}(undef, height, width)
+
+    s = s[1:width]
+    for (w, c) in enumerate(s)
+        thechar[1, w] = s[w]
+    end
+
+    for h in 2:height
+        s = readline(io)
+        s = s[1:width]
+        for (w, c) in enumerate(s)
+            thechar[h, w] = c
+        end
+    end
+
+    return FIGletChar(ord, thechar)
+end
+
+Base.show(io::IO, fc::FIGletChar) = print(io, "FIGletChar(ord='$(fc.ord)')")
+
 function readfont(io)
     magic = readmagic(io)
 
     header = split(readline(io))
-    fig_header = FIGHeader(
+    fig_header = FIGletHeader(
                            header[1][1],
                            parse.(Int, header[2:end])...,
                           )
-    for i in fig_header.comment_lines
+
+    for i in 1:fig_header.comment_lines
         discard = readline(io)
     end
 
-    return fig_header
+    fig_font = FIGletFont(
+                          fig_header,
+                          Dict{Char, FIGletChar}(),
+                         )
+
+    for c in ' ':'~'
+        fig_font.font_characters[c] = readfontchar(io, c, fig_header.height)
+    end
+
+    for c in ['Ä', 'Ö', 'Ü', 'ä', 'ö', 'ü', 'ß']
+        fig_font.font_characters[c] = readfontchar(io, c, fig_header.height)
+    end
+
+    while bytesavailable(io) > 1
+        s = readline(io)
+        i = parse(Int, split(s)[1])
+        c = Char(i)
+        readfontchar(io, c, fig_header.height);
+    end
+
+    return fig_font
 end
 
 end # module
