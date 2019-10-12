@@ -3,7 +3,9 @@ module FIGlet
 using Pkg.Artifacts
 import Base
 
-const FONTS = abspath(normpath(joinpath(artifact"fonts", "FIGletFonts-0.1.0", "fonts")))
+const FONTS = abspath(normpath(joinpath(artifact"fonts", "FIGletFonts-0.2.0", "fonts")))
+
+@assert isdir(FONTS)
 
 const DEFAULT_FONT = "standard"
 const FONTFILESUFFIX = ".flf"
