@@ -102,6 +102,7 @@ end
 struct FIGletFont
     header::FIGletHeader
     font_characters::Dict{Char,FIGletChar}
+    version::VersionNumber
 end
 
 
@@ -153,6 +154,7 @@ function readfont(io)
     fig_font = FIGletFont(
                           fig_header,
                           Dict{Char, FIGletChar}(),
+                          v"2.0.0",
                          )
 
     for c in ' ':'~'
@@ -160,7 +162,9 @@ function readfont(io)
     end
 
     for c in ['Ä', 'Ö', 'Ü', 'ä', 'ö', 'ü', 'ß']
-        fig_font.font_characters[c] = readfontchar(io, c, fig_header.height)
+        if bytesavailable(io) > 1
+            fig_font.font_characters[c] = readfontchar(io, c, fig_header.height)
+        end
     end
 
     while bytesavailable(io) > 1
