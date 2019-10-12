@@ -5,8 +5,6 @@ import Base
 
 const FONTS = abspath(normpath(joinpath(artifact"fonts", "FIGletFonts-0.2.0", "fonts")))
 
-@assert isdir(FONTS)
-
 const DEFAULT_FONT = "standard"
 const FONTFILESUFFIX = ".flf"
 const FONTFILEMAGICNUMBER = "flf2"
@@ -27,7 +25,11 @@ struct FontNotFound <: FIGletError end
 """
 Problem parsing a font file
 """
-struct FontError <: FIGletError end
+struct FontError <: FIGletError
+    msg::String
+end
+
+Base.showerror(io::IO, e::FontError) = print(io, "FontError: $(e.msg)")
 
 
 """
@@ -146,7 +148,7 @@ end
 
 function readmagic(io)
     magic = read(io, 5)
-    # magic[1:4] != UInt8['f', 'l', 'f', '2'] && error("File is not a valid FIGlet Lettering Font format.")
+    magic[1:4] != UInt8['f', 'l', 'f', '2'] && throw(FontError("File is not a valid FIGlet Lettering Font format. Magic header values must start with `flf2`."))
     magic[5] != UInt8('a') && @warn "File may be a FLF format but not flf2a."
     return magic # File has valid FIGlet Lettering Font format magic header.
 end
