@@ -1,0 +1,6 @@
+[fonts]
+git-tree-sha1 = "d84f233e4b0a088334e6a061868625b2c5630fac"
+
+    [[fonts.download]]
+    sha256 = "bac0c0f4f37d21bb671f2316ffb9306e52beaa3555475e642d3ea0ce626aa4e3"
+    url = "https://github.com/kdheepak/FIGletFonts/archive/v0.1.0.tar.gz"
