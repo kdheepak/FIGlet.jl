@@ -83,15 +83,51 @@ struct FIGletHeader
     full_layout::Int
     codetag_count::Int
 
-    function FIGletHeader(hardblank, height, baseline, max_length, old_layout, comment_lines,
-                       print_direction=0, full_layout=Int(HorizontalSmushingRule2), codetag_count=0
+    function FIGletHeader(
+                          hardblank,
+                          height,
+                          baseline,
+                          max_length,
+                          old_layout,
+                          comment_lines,
+                          print_direction=0,
+                          full_layout=Int(HorizontalSmushingRule2),
+                          codetag_count=0,
+                          args...,
                       )
+        length(args) >0 && @warn "Received unknown header attributes: `$args`."
         height < 1 && ( height = 1 )
         max_length < 1 && ( max_length = 1 )
         print_direction < 0 && ( print_direction = 0 )
         # max_length += 100 # Give ourselves some extra room
         new(hardblank, height, baseline, max_length, old_layout, comment_lines, print_direction, full_layout, codetag_count)
     end
+end
+
+function FIGletHeader(
+                      hardblank,
+                      height::AbstractString,
+                      baseline::AbstractString,
+                      max_length::AbstractString,
+                      old_layout::AbstractString,
+                      comment_lines::AbstractString,
+                      print_direction::AbstractString="0",
+                      full_layout::AbstractString="2",
+                      codetag_count::AbstractString="0",
+                      args...,
+                     )
+    return FIGletHeader(
+                        hardblank,
+                        parse(Int, height),
+                        parse(Int, baseline),
+                        parse(Int, max_length),
+                        parse(Int, old_layout),
+                        parse(Int, comment_lines),
+                        parse(Int, print_direction),
+                        parse(Int, full_layout),
+                        parse(Int, codetag_count),
+                        args...,
+                       )
 end
 
 struct FIGletChar
@@ -120,15 +156,15 @@ function readfontchar(io, ord, height)
     width == -1 && error("Unable to find character `$ord` in FIGlet Font.")
     thechar = Matrix{Char}(undef, height, width)
 
-    s = s[1:width]
     for (w, c) in enumerate(s)
-        thechar[1, w] = s[w]
+        w > width && break
+        thechar[1, w] = c
     end
 
     for h in 2:height
         s = readline(io)
-        s = s[1:width]
         for (w, c) in enumerate(s)
+            w > width && break
             thechar[h, w] = c
         end
     end
@@ -144,7 +180,7 @@ function readfont(io)
     header = split(readline(io))
     fig_header = FIGletHeader(
                            header[1][1],
-                           parse.(Int, header[2:end])...,
+                           header[2:end]...,
                           )
 
     for i in 1:fig_header.comment_lines
@@ -170,9 +206,13 @@ function readfont(io)
     while bytesavailable(io) > 1
         s = readline(io)
         strip(s) == "" && continue
-        i = parse(Int, split(s)[1])
-        c = Char(i)
-        readfontchar(io, c, fig_header.height);
+        s = split(s)[1]
+        c = if '-' in s
+            Char(-(parse(UInt16, strip(s, '-'))))
+        else
+            Char(parse(Int, s))
+        end
+        fig_font.font_characters[c] = readfontchar(io, c, fig_header.height)
     end
 
     return fig_font
