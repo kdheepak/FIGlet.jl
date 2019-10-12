@@ -1,6 +1,9 @@
 module FIGlet
 
+using Pkg.Artifacts
 import Base
+
+const FONTS = abspath(normpath(joinpath(artifact"fonts", "FIGletFonts-0.1.0", "fonts")))
 
 const DEFAULT_FONT = "standard"
 const FONTFILESUFFIX = ".flf"
@@ -113,6 +116,7 @@ function readfontchar(io, ord, height)
 
     s = readline(io)
     width = length(s)-1
+    width == -1 && error("Unable to find character `$ord` in FIGlet Font.")
     thechar = Matrix{Char}(undef, height, width)
 
     s = s[1:width]
@@ -161,6 +165,7 @@ function readfont(io)
 
     while bytesavailable(io) > 1
         s = readline(io)
+        strip(s) == "" && continue
         i = parse(Int, split(s)[1])
         c = Char(i)
         readfontchar(io, c, fig_header.height);
