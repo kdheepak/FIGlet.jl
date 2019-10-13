@@ -3,11 +3,11 @@ module FIGlet
 using Pkg.Artifacts
 import Base
 
-const FONTS = abspath(normpath(joinpath(artifact"fonts", "FIGletFonts-0.2.0", "fonts")))
+const FONTSDIR = abspath(normpath(joinpath(artifact"fonts", "FIGletFonts-0.2.0", "fonts")))
+const UNPARSEABLES = [
+              "nvscript.flf",
+             ]
 
-const DEFAULT_FONT = "standard"
-const FONTFILESUFFIX = ".flf"
-const FONTFILEMAGICNUMBER = "flf2"
 
 abstract type FIGletError <: Exception end
 
@@ -19,8 +19,11 @@ struct CharNotPrinted <: FIGletError end
 """
 Font can't be located
 """
-struct FontNotFound <: FIGletError end
+struct FontNotFoundError <: FIGletError
+    msg::String
+end
 
+Base.showerror(io::IO, e::FontNotFoundError) = print(io, "FontNotFoundError: $(e.msg)")
 
 """
 Problem parsing a font file
@@ -35,7 +38,7 @@ Base.showerror(io::IO, e::FontError) = print(io, "FontError: $(e.msg)")
 """
 Color is invalid
 """
-struct InvalidColor <: FIGletError end
+struct InvalidColorError <: FIGletError end
 
 Base.@enum(Layout,
     FullWidth                   =       -1,
@@ -145,6 +148,7 @@ struct FIGletFont
     version::VersionNumber
 end
 
+Base.show(io::IO, ff::FIGletFont) = print(io, "FIGletFont(n=$(length(ff.font_characters)))")
 
 function readmagic(io)
     magic = read(io, 5)
@@ -157,7 +161,7 @@ function readfontchar(io, ord, height)
 
     s = readline(io)
     width = length(s)-1
-    width == -1 && error("Unable to find character `$ord` in FIGlet Font.")
+    width == -1 && throw(FontError("Unable to find character `$ord` in FIGlet Font."))
     thechar = Matrix{Char}(undef, height, width)
 
     for (w, c) in enumerate(s)
@@ -177,6 +181,22 @@ function readfontchar(io, ord, height)
 end
 
 Base.show(io::IO, fc::FIGletChar) = print(io, "FIGletChar(ord='$(fc.ord)')")
+
+function readfont(s::AbstractString="Standard")
+    name = s
+    if !isfile(name)
+        name = abspath(normpath(joinpath(FONTSDIR, name)))
+        if !isfile(name)
+            name = "$name.flf"
+            !isfile(name) && throw(FontNotFoundError("Cannot find font `$s`."))
+        end
+    end
+
+    font = open(name) do f
+        readfont(f)
+    end
+    return font
+end
 
 function readfont(io)
     magic = readmagic(io)
@@ -220,6 +240,18 @@ function readfont(io)
     end
 
     return fig_font
+end
+
+function availablefonts()
+    fonts = String[]
+    for (root, dirs, files) in walkdir(FONTSDIR)
+        for f in files
+            if !(f in UNPARSEABLES)
+                push!(fonts, f)
+            end
+        end
+    end
+    return fonts
 end
 
 end # module
