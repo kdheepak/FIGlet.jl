@@ -228,7 +228,7 @@ function availablefonts(substring)
     for (root, dirs, files) in walkdir(FONTSDIR)
         for file in files
             if !(file in UNPARSEABLES)
-                if occursin(substring, lowercase(file)) || substring == ""
+                if occursin(lowercase(substring), lowercase(file)) || substring == ""
                     push!(fonts, replace(file, ".flf"=>""))
                 end
             end
@@ -238,6 +238,33 @@ function availablefonts(substring)
     return fonts
 end
 
+"""
+    availablefonts() -> Vector{String}
+    availablefonts(substring::AbstractString) -> Vector{String}
+
+Returns all available fonts.
+If `substring` is passed, returns available fonts that contain the case insensitive `substring`.
+
+Example:
+
+    julia> availablefonts()
+    680-element Array{String,1}:
+     "1943____"
+     "1row"
+     ⋮
+     "zig_zag_"
+     "zone7___"
+
+    julia> FIGlet.availablefonts("3d")
+    5-element Array{String,1}:
+     "3D Diagonal"
+     "3D-ASCII"
+     "3d"
+     "Henry 3D"
+     "Larry 3D"
+
+    julia>
+"""
 availablefonts() = availablefonts("")
 
 function render(io, text::AbstractString, font::FIGletFont)
@@ -261,8 +288,18 @@ function render(io, text::AbstractString, font::FIGletFont)
     print(io, replace(String(take!(iob)), font.header.hardblank=>' '))
 end
 
-render(text::AbstractString, font::FIGletFont) = render(stdout, text, font)
-render(text::AbstractString, font::AbstractString="Standard") = render(text, readfont(font))
+render(io, text::AbstractString, font::AbstractString) = render(io, text, readfont(font))
 
+"""
+    render(text::AbstractString, font::Union{AbstractString, FIGletFont})
+
+Renders `text` using `font` to `stdout`
+
+Example:
+
+    render("hello world", "standard")
+    render("hello world", readfont("standard"))
+"""
+render(text::AbstractString, font) = render(stdout, text, font)
 
 end # module

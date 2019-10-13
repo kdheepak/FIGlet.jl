@@ -4,4 +4,5 @@
 
 ```@autodocs
 Modules = [FIGlet]
+Order   = [:function]
 ```
