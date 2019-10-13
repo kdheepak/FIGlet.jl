@@ -355,9 +355,39 @@
 <h1 id="usage">Usage</h1>
 <p><a id='API-1'></a></p>
 <h3 id="api">API</h3>
+<p><a id='FIGlet.availablefonts-Tuple{}' href='#FIGlet.availablefonts-Tuple{}'>#</a>
+<strong><code>FIGlet.availablefonts</code></strong> &mdash; <em>Method</em>.</p>
+<div class="codehilite"><pre><span></span><span class="n">availablefonts</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Vector</span><span class="p">{</span><span class="n">String</span><span class="p">}</span>
+<span class="n">availablefonts</span><span class="p">(</span><span class="n">substring</span><span class="o">::</span><span class="kt">AbstractString</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Vector</span><span class="p">{</span><span class="n">String</span><span class="p">}</span>
+</pre></div>
+
+
+<p>Returns all available fonts. If <code>substring</code> is passed, returns available fonts that contain the case insensitive <code>substring</code>.</p>
+<p>Example:</p>
+<div class="codehilite"><pre><span></span><span class="n">julia</span><span class="o">&gt;</span> <span class="n">availablefonts</span><span class="p">()</span>
+<span class="mi">680</span><span class="o">-</span><span class="n">element</span> <span class="nb">Array</span><span class="err">{</span><span class="n">String</span><span class="p">,</span><span class="mi">1</span><span class="err">}</span><span class="p">:</span>
+ <span class="ss">&quot;1943____&quot;</span>
+ <span class="ss">&quot;1row&quot;</span>
+ <span class="err">⋮</span>
+ <span class="ss">&quot;zig_zag_&quot;</span>
+ <span class="ss">&quot;zone7___&quot;</span>
+
+<span class="n">julia</span><span class="o">&gt;</span> <span class="n">FIGlet</span><span class="p">.</span><span class="n">availablefonts</span><span class="p">(</span><span class="ss">&quot;3d&quot;</span><span class="p">)</span>
+<span class="mi">5</span><span class="o">-</span><span class="n">element</span> <span class="nb">Array</span><span class="err">{</span><span class="n">String</span><span class="p">,</span><span class="mi">1</span><span class="err">}</span><span class="p">:</span>
+ <span class="ss">&quot;3D Diagonal&quot;</span>
+ <span class="ss">&quot;3D-ASCII&quot;</span>
+ <span class="ss">&quot;3d&quot;</span>
+ <span class="ss">&quot;Henry 3D&quot;</span>
+ <span class="ss">&quot;Larry 3D&quot;</span>
+
+<span class="n">julia</span><span class="o">&gt;</span>
+</pre></div>
+
+
+<p><a target='_blank' href='https://github.com/kdheepak/FIGlet.jl/blob/8caadc08d6482c36116c6d77f50b1dd0e1c4bfd3/src/FIGlet.jl#L241-L267' class='documenter-source'>source</a><br></p>
 <p><a id='FIGlet.render-Tuple{AbstractString,Any}' href='#FIGlet.render-Tuple{AbstractString,Any}'>#</a>
 <strong><code>FIGlet.render</code></strong> &mdash; <em>Method</em>.</p>
-<div class="codehilite"><pre><span></span><span class="n">render</span><span class="p">(</span><span class="n">text</span><span class="o">::</span><span class="kt">AbstractString</span><span class="p">,</span> <span class="n">font</span><span class="o">::</span><span class="n">FIGletFont</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><span class="n">render</span><span class="p">(</span><span class="n">text</span><span class="o">::</span><span class="kt">AbstractString</span><span class="p">,</span> <span class="n">font</span><span class="o">::</span><span class="kt">Union</span><span class="p">{</span><span class="kt">AbstractString</span><span class="p">,</span> <span class="n">FIGletFont</span><span class="p">})</span>
 </pre></div>
 
 
@@ -368,23 +398,7 @@
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/kdheepak/FIGlet.jl/blob/4e213fc65154331c0c83d049b150627666125ddb/src/FIGlet.jl#L266-L275' class='documenter-source'>source</a><br></p>
-<p><a id='FIGlet.CharNotPrinted' href='#FIGlet.CharNotPrinted'>#</a>
-<strong><code>FIGlet.CharNotPrinted</code></strong> &mdash; <em>Type</em>.</p>
-<p>Width is not sufficient to print a character</p>
-<p><a target='_blank' href='https://github.com/kdheepak/FIGlet.jl/blob/4e213fc65154331c0c83d049b150627666125ddb/src/FIGlet.jl#L14-L16' class='documenter-source'>source</a><br></p>
-<p><a id='FIGlet.FontError' href='#FIGlet.FontError'>#</a>
-<strong><code>FIGlet.FontError</code></strong> &mdash; <em>Type</em>.</p>
-<p>Problem parsing a font file</p>
-<p><a target='_blank' href='https://github.com/kdheepak/FIGlet.jl/blob/4e213fc65154331c0c83d049b150627666125ddb/src/FIGlet.jl#L28-L30' class='documenter-source'>source</a><br></p>
-<p><a id='FIGlet.FontNotFoundError' href='#FIGlet.FontNotFoundError'>#</a>
-<strong><code>FIGlet.FontNotFoundError</code></strong> &mdash; <em>Type</em>.</p>
-<p>Font can't be located</p>
-<p><a target='_blank' href='https://github.com/kdheepak/FIGlet.jl/blob/4e213fc65154331c0c83d049b150627666125ddb/src/FIGlet.jl#L19-L21' class='documenter-source'>source</a><br></p>
-<p><a id='FIGlet.InvalidColorError' href='#FIGlet.InvalidColorError'>#</a>
-<strong><code>FIGlet.InvalidColorError</code></strong> &mdash; <em>Type</em>.</p>
-<p>Color is invalid</p>
-<p><a target='_blank' href='https://github.com/kdheepak/FIGlet.jl/blob/4e213fc65154331c0c83d049b150627666125ddb/src/FIGlet.jl#L38-L40' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/kdheepak/FIGlet.jl/blob/8caadc08d6482c36116c6d77f50b1dd0e1c4bfd3/src/FIGlet.jl#L293-L302' class='documenter-source'>source</a><br></p>
                 
                   
                 
