@@ -1,7 +1,7 @@
 [fonts]
-git-tree-sha1 = "135c3e1684298852da527d2191aeb661dddbbfaa"
+git-tree-sha1 = "daef49234116097f566847685effc8b29768dc33"
 
     [[fonts.download]]
-    sha256 = "0f7e568955032aec16e36d49c1d1c2196052762af642d3efccab96e7602edb3c"
-    url = "https://github.com/kdheepak/FIGletFonts/archive/v0.3.0.tar.gz"
+    sha256 = "9805b7740afe77c518588a1b2f3af3cc9e3e9ca17411edd0da542d4b5d417a83"
+    url = "https://github.com/kdheepak/FIGletFonts/archive/v0.4.0.tar.gz"
 
