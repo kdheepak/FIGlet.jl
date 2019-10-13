@@ -7,6 +7,7 @@ const FONTSDIR = abspath(normpath(joinpath(artifact"fonts", "FIGletFonts-0.5.0",
 const UNPARSEABLES = [
               "nvscript.flf",
              ]
+const DEFAULTFONT = "Standard"
 
 
 abstract type FIGletError <: Exception end
@@ -58,7 +59,6 @@ Base.@enum(Layout,
     VerticalFitting             =     8192,
     VerticalSmushing            =    16384,
 )
-
 
 struct FIGletHeader
     hardblank::Char
@@ -267,28 +267,136 @@ Example:
 """
 availablefonts() = availablefonts("")
 
-function render(io, text::AbstractString, font::FIGletFont)
 
-    iob = IOBuffer()
+raw"""
 
-    fig_chars = FIGletChar[]
+    smushem(lch::Char, rch::Char) -> Char
 
-    for c in text
-        fc = font.font_characters[c]
-        push!(fig_chars, fc)
+Given 2 characters, attempts to smush them into 1, according to
+smushmode.  Returns smushed character or '\0' if no smushing can be
+done.
+
+smushmode values are sum of following (all values smush blanks):
+    1: Smush equal chars (not hardblanks)
+    2: Smush '_' with any char in hierarchy below
+    4: hierarchy: "|", "/\", "[]", "{}", "()", "<>"
+       Each class in hier. can be replaced by later class.
+    8: [ + ] -> |, { + } -> |, ( + ) -> |
+    16: / + \ -> X, > + < -> X (only in that order)
+    32: hardblank + hardblank -> hardblank
+
+"""
+function smushem(ff::FIGletFont, lch::Char, rch::Char)
+
+    smushmode = ff.header.full_layout
+    hardblank = ff.header.hardblank
+    print_direction = ff.header.print_direction
+
+    lch==' ' && return rch
+    rch==' ' && return lch
+
+    # TODO: Disallow overlapping if the previous character or the current character has a width of 0 or 1
+    # if previouscharwidth < 2 || currcharwidth < 2 return '\0' end
+
+    if ( smushmode & Int(HorizontalSmushing::Layout) ) == 0 return '\0' end
+
+    if ( smushmode & 63 ) == 0
+        # This is smushing by universal overlapping.
+
+        # Ensure overlapping preference to visible characters.
+        if lch == hardblank return rch end
+        if rch == hardblank return lch end
+
+        # Ensures that the dominant (foreground) fig-character for overlapping is the latter in the user's text, not necessarily the rightmost character.
+        if print_direction==1 return lch end
+
+        # Catch all exceptions
+        return rch
     end
 
-    for r in 1:font.header.height
-        for fc in fig_chars
-            print(iob, join(fc.thechar[r, :]))
-        end
-        print(iob, '\n')
+    if smushmode & Int(HorizontalSmushingRule6::Layout) != 0
+        if lch == hardblank && rch == hardblank return lch end
     end
 
-    print(io, replace(String(take!(iob)), font.header.hardblank=>' '))
+    if lch == hardblank || rch == hardblank return '\0' end
+
+    if smushmode & Int(HorizontalSmushingRule1::Layout) != 0
+        if lch == rch return lch end
+    end
+
+    if smushmode & Int(HorizontalSmushingRule2::Layout) != 0
+        if lch == '_' && rch in "|/\\[]{}()<>" return rch end
+        if rch == '_' && lch in "|/\\[]{}()<>" return lch end
+    end
+
+    if smushmode & Int(HorizontalSmushingRule3::Layout) != 0
+        if lch == '|' && rch in "/\\[]{}()<>" return rch end
+        if rch == '|' && lch in "/\\[]{}()<>" return lch end
+        if lch in "/\\" && rch in "[]{}()<>" return rch end
+        if rch in "/\\" && lch in "[]{}()<>" return lch end
+        if lch in "[]" && rch in "{}()<>" return rch end
+        if rch in "[]" && lch in "{}()<>" return lch end
+        if lch in "{}" && rch in "()<>" return rch end
+        if rch in "{}" && lch in "()<>" return lch end
+        if lch in "()" && rch in "<>" return rch end
+        if rch in "()" && lch in "<>" return lch end
+    end
+
+    if smushmode & Int(HorizontalSmushingRule4::Layout) != 0
+        if lch == '[' && rch == ']' return '|' end
+        if rch == '[' && lch == ']' return '|' end
+        if lch == '{' && rch == '}' return '|' end
+        if rch == '{' && lch == '}' return '|' end
+        if lch == '(' && rch == ')' return '|' end
+        if rch == '(' && lch == ')' return '|' end
+    end
+
+    if smushmode & Int(HorizontalSmushingRule5::Layout) != 0
+        if lch == '/' && rch == '\\' return '|' end
+        if rch == '/' && lch == '\\' return 'Y' end
+
+        # Don't want the reverse of below to give 'X'.
+        if lch == '>' && rch == '<' return 'X' end
+    end
+
+    return '\0'
+
 end
 
-render(io, text::AbstractString, font::AbstractString) = render(io, text, readfont(font))
+function addchar(current::Matrix{Char}, ff::FIGletFont, c::Char, )
+
+    fc = ff.font_characters[c]
+
+    # TODO: smush based on figfont standard
+    current_h, current_w = size(current)
+    new_h, new_w = size(fc.thechar)
+    for j in 1:new_h
+        smushed = smushem(ff, current[end - new_h + j, current_w], fc.thechar[j, 1])
+        current[end - new_h + j, current_w] = smushed
+    end
+
+    current = hcat(current, fc.thechar[:, 2:end])
+
+end
+
+function render(io, text::AbstractString, ff::FIGletFont)
+    (HEIGHT, WIDTH) = Base.displaysize(io)
+
+    current = fill(' ', ff.header.height, 1)
+
+    for c in text
+        current = addchar(current, ff, c)
+    end
+
+    h, w = size(current)
+    for j in 1:h
+        s = join(current[j, :])
+        println(io, s)
+    end
+
+end
+
+render(io, text::AbstractString, ff::AbstractString) = render(io, text, readfont(ff))
 
 """
     render(text::AbstractString, font::Union{AbstractString, FIGletFont})
@@ -300,6 +408,6 @@ Example:
     render("hello world", "standard")
     render("hello world", readfont("standard"))
 """
-render(text::AbstractString, font) = render(stdout, text, font)
+render(text::AbstractString, font=DEFAULTFONT) = render(stdout, text, font)
 
 end # module

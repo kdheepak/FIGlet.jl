@@ -26,4 +26,8 @@ using Test
     @test_throws FIGlet.FontNotFoundError FIGlet.readfont("wat")
     @test_throws FIGlet.FontError FIGlet.readfont(joinpath(@__DIR__, "..", "README.md"))
 
+    @test FIGlet.smushem(FIGlet.readfont("standard"), ' ', ' ') == ' '
+    @test FIGlet.smushem(FIGlet.readfont("standard"), '_', ' ') == '_'
+    @test FIGlet.smushem(FIGlet.readfont("standard"), ' ', '_') == '_'
+
 end
