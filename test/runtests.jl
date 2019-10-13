@@ -7,7 +7,7 @@ using Test
 
     @test FIGlet.FIGletHeader('$', 6, 5, 16, 15, 11) == FIGlet.FIGletHeader('$', 6, 5, 16, 15, 11, 0, 2, 0)
 
-    @test FIGlet.availablefonts() |> length == 760
+    @test FIGlet.availablefonts() |> length == 737
 
     for font in FIGlet.availablefonts()
         @test FIGlet.readfont(font) isa FIGlet.FIGletFont

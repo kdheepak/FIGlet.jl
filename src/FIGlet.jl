@@ -3,7 +3,7 @@ module FIGlet
 using Pkg.Artifacts
 import Base
 
-const FONTSDIR = abspath(normpath(joinpath(artifact"fonts", "FIGletFonts-0.2.0", "fonts")))
+const FONTSDIR = abspath(normpath(joinpath(artifact"fonts", "FIGletFonts-0.3.0", "fonts")))
 const UNPARSEABLES = [
               "nvscript.flf",
              ]
