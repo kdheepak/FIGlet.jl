@@ -245,9 +245,9 @@ end
 function availablefonts()
     fonts = String[]
     for (root, dirs, files) in walkdir(FONTSDIR)
-        for f in files
-            if !(f in UNPARSEABLES)
-                push!(fonts, f)
+        for file in files
+            if !(file in UNPARSEABLES)
+                push!(fonts, replace(file, ".flf"=>""))
             end
         end
     end
