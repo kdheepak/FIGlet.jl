@@ -1,11 +1,10 @@
-# FIGlet
-
-
+```
 ███████ ██  ██████  ██      ███████ ████████
 ██      ██ ██       ██      ██         ██
 █████   ██ ██   ███ ██      █████      ██
 ██      ██ ██    ██ ██      ██         ██
 ██      ██  ██████  ███████ ███████    ██
+```
 
 
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://kdheepak.github.io/FIGlet.jl/stable)
