@@ -242,18 +242,22 @@ function readfont(io)
     return fig_font
 end
 
-function availablefonts()
+function availablefonts(substring)
     fonts = String[]
     for (root, dirs, files) in walkdir(FONTSDIR)
         for file in files
             if !(file in UNPARSEABLES)
-                push!(fonts, replace(file, ".flf"=>""))
+                if occursin(substring, lowercase(file)) || substring == ""
+                    push!(fonts, replace(file, ".flf"=>""))
+                end
             end
         end
     end
     sort!(fonts)
     return fonts
 end
+
+availablefonts() = availablefonts("")
 
 function render(io, text::AbstractString, font::FIGletFont)
 
