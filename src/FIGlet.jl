@@ -182,7 +182,7 @@ end
 
 Base.show(io::IO, fc::FIGletChar) = print(io, "FIGletChar(ord='$(fc.ord)')")
 
-function readfont(s::AbstractString="Standard")
+function readfont(s::AbstractString)
     name = s
     if !isfile(name)
         name = abspath(normpath(joinpath(FONTSDIR, name)))
@@ -251,7 +251,33 @@ function availablefonts()
             end
         end
     end
+    sort!(fonts)
     return fonts
 end
+
+function render(io, text::AbstractString, font::FIGletFont)
+
+    iob = IOBuffer()
+
+    fig_chars = FIGletChar[]
+
+    for c in text
+        fc = font.font_characters[c]
+        push!(fig_chars, fc)
+    end
+
+    for r in 1:font.header.height
+        for fc in fig_chars
+            print(iob, join(fc.thechar[r, :]))
+        end
+        print(iob, '\n')
+    end
+
+    print(io, replace(String(take!(iob)), font.header.hardblank=>' '))
+end
+
+render(text::AbstractString, font::FIGletFont) = render(stdout, text, font)
+render(text::AbstractString, font::AbstractString="Standard") = render(text, readfont(font))
+
 
 end # module
