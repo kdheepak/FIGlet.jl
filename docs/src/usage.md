@@ -1,7 +1,6 @@
-# FIGlet.jl
+# Usage
 
-```@index
-```
+### API
 
 ```@autodocs
 Modules = [FIGlet]
