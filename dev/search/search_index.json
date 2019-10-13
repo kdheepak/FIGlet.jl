@@ -7,7 +7,7 @@
         }, 
         {
             "location": "/usage/", 
-            "text": "Usage\n\n\n\n\nAPI\n\n\n#\n\n\nFIGlet.CharNotPrinted\n \n \nType\n.\n\n\nWidth is not sufficient to print a character\n\n\nsource\n\n\n#\n\n\nFIGlet.FontError\n \n \nType\n.\n\n\nProblem parsing a font file\n\n\nsource\n\n\n#\n\n\nFIGlet.FontNotFoundError\n \n \nType\n.\n\n\nFont can't be located\n\n\nsource\n\n\n#\n\n\nFIGlet.InvalidColorError\n \n \nType\n.\n\n\nColor is invalid\n\n\nsource", 
+            "text": "Usage\n\n\n\n\nAPI\n\n\n#\n\n\nFIGlet.render\n \n \nMethod\n.\n\n\nrender\n(\ntext\n::\nAbstractString\n,\n \nfont\n::\nFIGletFont\n)\n\n\n\n\n\n\nRenders \ntext\n using \nfont\n to \nstdout\n\n\nExample:\n\n\nrender\n(\nhello world\n,\n \nstandard\n)\n\n\nrender\n(\nhello world\n,\n \nreadfont\n(\nstandard\n))\n\n\n\n\n\n\nsource\n\n\n#\n\n\nFIGlet.CharNotPrinted\n \n \nType\n.\n\n\nWidth is not sufficient to print a character\n\n\nsource\n\n\n#\n\n\nFIGlet.FontError\n \n \nType\n.\n\n\nProblem parsing a font file\n\n\nsource\n\n\n#\n\n\nFIGlet.FontNotFoundError\n \n \nType\n.\n\n\nFont can't be located\n\n\nsource\n\n\n#\n\n\nFIGlet.InvalidColorError\n \n \nType\n.\n\n\nColor is invalid\n\n\nsource", 
             "title": "Usage"
         }, 
         {
@@ -17,7 +17,7 @@
         }, 
         {
             "location": "/usage/#api", 
-            "text": "#  FIGlet.CharNotPrinted     Type .  Width is not sufficient to print a character  source  #  FIGlet.FontError     Type .  Problem parsing a font file  source  #  FIGlet.FontNotFoundError     Type .  Font can't be located  source  #  FIGlet.InvalidColorError     Type .  Color is invalid  source", 
+            "text": "#  FIGlet.render     Method .  render ( text :: AbstractString ,   font :: FIGletFont )   Renders  text  using  font  to  stdout  Example:  render ( hello world ,   standard )  render ( hello world ,   readfont ( standard ))   source  #  FIGlet.CharNotPrinted     Type .  Width is not sufficient to print a character  source  #  FIGlet.FontError     Type .  Problem parsing a font file  source  #  FIGlet.FontNotFoundError     Type .  Font can't be located  source  #  FIGlet.InvalidColorError     Type .  Color is invalid  source", 
             "title": "API"
         }, 
         {
