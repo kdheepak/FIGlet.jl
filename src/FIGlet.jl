@@ -173,7 +173,7 @@ end
 
 Base.show(io::IO, fc::FIGletChar) = print(io, "FIGletChar(ord='$(fc.ord)')")
 
-function readfont(s::AbstractString)
+function getfontpath(s::AbstractString)
     name = s
     if !isfile(name)
         name = abspath(normpath(joinpath(FONTSDIR, name)))
@@ -182,7 +182,11 @@ function readfont(s::AbstractString)
             !isfile(name) && throw(FontNotFoundError("Cannot find font `$s`."))
         end
     end
+    return name
+end
 
+function readfont(s::AbstractString)
+    name = getfontpath(s)
     font = open(name) do f
         readfont(f)
     end
@@ -485,7 +489,7 @@ function render(io, text::AbstractString, ff::FIGletFont)
         nrows, ncols = size(line)
         for r in 1:nrows
             s = join(line[r, :])
-            s = replace(s, '\$'=>' ')
+            s = replace(s, '\$'=>' ') |> rstrip
             print(io, s)
             println(io)
         end
