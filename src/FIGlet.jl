@@ -386,8 +386,6 @@ function smushamount(current::Matrix{Char}, thechar::Matrix{Char}, fh::FIGletHea
     nrows_l, ncols_l = size(current)
     _, ncols_r = size(thechar)
 
-    ncols_l == 1 && return 0
-
     maximum_smush = ncols_r
     smush = ncols_l
 
@@ -461,9 +459,8 @@ function render(io, text::AbstractString, ff::FIGletFont)
     (HEIGHT, WIDTH) = Base.displaysize(io)
 
     words = Matrix{Char}[]
-    current = fill('\0', ff.header.height, 1)
     for word in split(text)
-        current = fill('\0', ff.header.height, 1)
+        current = fill(' ', ff.header.height, 1)
         for c in word
             current = addchar(current, ff.font_characters[c].thechar, ff.header)
         end
