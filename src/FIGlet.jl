@@ -79,11 +79,19 @@ struct FIGletHeader
                           old_layout,
                           comment_lines,
                           print_direction=0,
-                          full_layout=Int(HorizontalSmushingRule2),
+                          full_layout=-2,
                           codetag_count=0,
                           args...,
                       )
         length(args) >0 && @warn "Received unknown header attributes: `$args`."
+        full_layout == -2 && ( full_layout = old_layout )
+        if full_layout == 0
+            full_layout = Int(HorizontalFitting)
+        elseif full_layout == -1
+            full_layout = 0
+        else
+            full_layout = ( full_layout & 63 ) | Int(HorizontalSmushing)
+        end
         height < 1 && ( height = 1 )
         max_length < 1 && ( max_length = 1 )
         print_direction < 0 && ( print_direction = 0 )
@@ -100,7 +108,7 @@ function FIGletHeader(
                       old_layout::AbstractString,
                       comment_lines::AbstractString,
                       print_direction::AbstractString="0",
-                      full_layout::AbstractString="2",
+                      full_layout::AbstractString="-2",
                       codetag_count::AbstractString="0",
                       args...,
                      )
@@ -421,38 +429,6 @@ function smushamount(current::Matrix{Char}, thechar::Matrix{Char}, fh::FIGletHea
         end
     end
     return maximum_smush
-end
-
-function lstrip(thechar::Matrix{Char})
-    _, ncols = size(thechar)
-    ncols == 1 && return thechar
-
-    strip_index = 1
-    for col in 1:ncols
-        if all(thechar[:, col] .== ' ')
-            strip_index += 1
-        else
-            break
-        end
-    end
-    return thechar[:, strip_index:end]
-
-end
-
-function rstrip(current::Matrix{Char})
-    _, ncols = size(current)
-    ncols == 1 && return current
-
-    strip_index = 0
-    for col in ncols:-1:1
-        if all(current[:, col] .== ' ')
-            strip_index += 1
-        else
-            break
-        end
-    end
-    return current[:, 1:end - strip_index]
-
 end
 
 function addchar(current::Matrix{Char}, thechar::Matrix{Char}, fh::FIGletHeader)
