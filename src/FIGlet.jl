@@ -1,9 +1,14 @@
 module FIGlet
 
-using Pkg.Artifacts
-import Base
+using Pkg
 
-const FONTSDIR = abspath(normpath(joinpath(artifact"fonts", "FIGletFonts-0.5.0", "fonts")))
+if isdefined(Pkg, :Artifacts)
+    using Pkg.Artifacts
+    @eval fontsroot = artifact"fonts"
+else
+    fontsroot = normpath(@__DIR__, "..", "deps")
+end
+const FONTSDIR = abspath(normpath(joinpath(fontsroot, "FIGletFonts-0.5.0", "fonts")))
 const UNPARSEABLES = [
               "nvscript.flf",
              ]
