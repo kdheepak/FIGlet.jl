@@ -18,4 +18,4 @@
 
 FIGlet.jl is a Julia port of [FIGlet](http://www.figlet.org/).
 
-![](https://user-images.githubusercontent.com/1813121/66712158-124ecc80-ed88-11e9-9e29-3f6074e210d6.png)
+![](https://user-images.githubusercontent.com/1813121/66729028-10444680-ee38-11e9-99a8-c366b7d9eec9.png)
