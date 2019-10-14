@@ -26,28 +26,4 @@ using Test
     @test_throws FIGlet.FontNotFoundError FIGlet.readfont("wat")
     @test_throws FIGlet.FontError FIGlet.readfont(joinpath(@__DIR__, "..", "README.md"))
 
-    @test FIGlet.smushem(FIGlet.readfont("standard"), ' ', ' ') == ' '
-    @test FIGlet.smushem(FIGlet.readfont("standard"), '_', ' ') == '_'
-    @test FIGlet.smushem(FIGlet.readfont("standard"), ' ', '_') == '_'
-
-    current = [
- ' '  ' '  '_'  ' '  ' '  ' '  '_'  ' '
- ' '  '|'  ' '  '|'  ' '  '|'  ' '  '|'
- ' '  '|'  ' '  '|'  '_'  '|'  ' '  '|'
- ' '  '|'  ' '  ' '  '_'  ' '  ' '  '|'
- ' '  '|'  '_'  '|'  ' '  '|'  '_'  '|'
- ' '  ' '  ' '  ' '  ' '  ' '  ' '  ' '
-]
-
-    thechar = [
- ' '  ' '  '_'  ' '
- ' '  '('  '_'  ')'
- ' '  '|'  ' '  '|'
- ' '  '|'  ' '  '|'
- ' '  '|'  '_'  '|'
- ' '  ' '  ' '  ' '
-]
-
-    fh = FIGlet.FIGletHeader('$', 6, 5, 16, 15, 13, 0, 24463, 229)
-
 end
