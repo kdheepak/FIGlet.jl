@@ -270,7 +270,7 @@ availablefonts() = availablefonts("")
 
 raw"""
 
-    smushem(lch::Char, rch::Char) -> Char
+    smushem(lch::Char, rch::Char, fh::FIGletHeader) -> Char
 
 Given 2 characters, attempts to smush them into 1, according to
 smushmode.  Returns smushed character or '\0' if no smushing can be
@@ -286,11 +286,11 @@ smushmode values are sum of following (all values smush blanks):
     32: hardblank + hardblank -> hardblank
 
 """
-function smushem(ff::FIGletFont, lch::Char, rch::Char)
+function smushem(lch::Char, rch::Char, fh::FIGletHeader)
 
-    smushmode = ff.header.full_layout
-    hardblank = ff.header.hardblank
-    print_direction = ff.header.print_direction
+    smushmode = fh.full_layout
+    hardblank = fh.hardblank
+    print_direction = fh.print_direction
 
     lch==' ' && return rch
     rch==' ' && return lch
@@ -308,7 +308,7 @@ function smushem(ff::FIGletFont, lch::Char, rch::Char)
         if rch == hardblank return lch end
 
         # Ensures that the dominant (foreground) fig-character for overlapping is the latter in the user's text, not necessarily the rightmost character.
-        if print_direction==1 return lch end
+        if print_direction == 1 return lch end
 
         # Catch all exceptions
         return rch
@@ -363,35 +363,156 @@ function smushem(ff::FIGletFont, lch::Char, rch::Char)
 
 end
 
-function addchar(current::Matrix{Char}, ff::FIGletFont, c::Char, )
+function smushamount(current::Matrix{Char}, thechar::Matrix{Char}, fh::FIGletHeader)
 
-    fc = ff.font_characters[c]
+    fh.print_direction == 1 && error("Not implemented yet.")
 
-    # TODO: smush based on figfont standard
-    current_h, current_w = size(current)
-    new_h, new_w = size(fc.thechar)
-    for j in 1:new_h
-        smushed = smushem(ff, current[end - new_h + j, current_w], fc.thechar[j, 1])
-        current[end - new_h + j, current_w] = smushed
+    smushmode = fh.full_layout
+
+    if (smushmode & (Int(HorizontalSmushing::Layout) | Int(HorizontalFitting::Layout)) == 0)
+        return 0
     end
 
-    current = hcat(current, fc.thechar[:, 2:end])
+    nrows_l, ncols_l = size(current)
+    _, ncols_r = size(thechar)
 
+    ncols_l == 1 && return 0
+
+    maximum_smush = ncols_l
+    smush = ncols_l
+
+    for row in 1:nrows_l
+
+        cl = '\0'
+        cr = '\0'
+        linebd = 0
+        charbd = 0
+        for col_l in ncols_l:-1:1
+            cl = current[row, col_l]
+            if col_l > 1 && ( cl == '\0' || cl == ' ' )
+                linebd += 1
+                continue
+            else
+                break
+            end
+        end
+
+        for col_r in 1:ncols_r
+            cr = thechar[row, col_r]
+            if cr == ' '
+                charbd += 1
+                continue
+            else
+                break
+            end
+        end
+
+        smush = linebd + charbd
+        if cl == '\0' || cl == ' '
+            smush += 1
+        elseif (cr != '\0')
+            if smushem(cl, cr, fh) != '\0'
+                smush += 1
+            end
+        end
+
+        if smush < maximum_smush
+            maximum_smush = smush
+        end
+    end
+    return maximum_smush
+end
+
+function lstrip(thechar::Matrix{Char})
+    _, ncols = size(thechar)
+    ncols == 1 && return thechar
+
+    strip_index = 1
+    for col in 1:ncols
+        if all(thechar[:, col] .== ' ')
+            strip_index += 1
+        else
+            break
+        end
+    end
+    return thechar[:, strip_index:end]
+
+end
+
+function rstrip(current::Matrix{Char})
+    _, ncols = size(current)
+    ncols == 1 && return current
+
+    strip_index = 0
+    for col in ncols:-1:1
+        if all(current[:, col] .== ' ')
+            strip_index += 1
+        else
+            break
+        end
+    end
+    return current[:, 1:end - strip_index]
+
+end
+
+function addchar(current::Matrix{Char}, thechar::Matrix{Char}, fh::FIGletHeader)
+
+    current = copy(current)
+    maximum_smush = smushamount(current, thechar, fh)
+
+    _, ncols_l = size(current)
+    nrows_r, _ = size(thechar)
+
+    for row in 1:nrows_r
+
+      for smush in 1:maximum_smush
+          col_l = ncols_l - maximum_smush + smush
+          col_l < 1 && ( col_l = 1 )
+          current[row, col_l] = smushem(current[row, col_l], thechar[row, smush], fh)
+      end
+
+    end
+
+    current = hcat(
+                   current,
+                   thechar[:, ( maximum_smush + 1 ):end]
+                  )
 end
 
 function render(io, text::AbstractString, ff::FIGletFont)
     (HEIGHT, WIDTH) = Base.displaysize(io)
 
-    current = fill(' ', ff.header.height, 1)
-
-    for c in text
-        current = addchar(current, ff, c)
+    words = Matrix{Char}[]
+    current = fill('\0', ff.header.height, 1)
+    for word in split(text)
+        current = fill('\0', ff.header.height, 1)
+        for c in word
+            current = addchar(current, ff.font_characters[c].thechar, ff.header)
+        end
+        push!(words, current)
     end
 
-    h, w = size(current)
-    for j in 1:h
-        s = join(current[j, :])
-        println(io, s)
+    lines = Matrix{Char}[]
+    current = fill('\0', ff.header.height, 0)
+    for word in words
+        if size(current)[2] + size(word)[2] < WIDTH
+            current = hcat(current, word)
+        else
+            push!(lines, current)
+            current = fill('\0', ff.header.height, 0)
+            current = hcat(current, word)
+        end
+    end
+    push!(lines, current)
+
+    for line in lines
+        nrows, ncols = size(line)
+        for r in 1:nrows
+            s = join(line[r, :])
+            print(io, s)
+            println(io)
+        end
+        println(io)
     end
 
 end
