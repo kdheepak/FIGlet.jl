@@ -388,7 +388,7 @@ function smushamount(current::Matrix{Char}, thechar::Matrix{Char}, fh::FIGletHea
 
     ncols_l == 1 && return 0
 
-    maximum_smush = ncols_l
+    maximum_smush = ncols_r
     smush = ncols_l
 
     for row in 1:nrows_l
