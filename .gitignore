@@ -6,3 +6,8 @@
 /dev/
 /docs/build/
 /docs/site/
+deps/FIGletFonts-0.5.0/
+deps/build.log
+deps/downloads/
+deps/manifests/
+
