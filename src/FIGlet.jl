@@ -84,13 +84,15 @@ struct FIGletHeader
                           args...,
                       )
         length(args) >0 && @warn "Received unknown header attributes: `$args`."
-        full_layout == -2 && ( full_layout = old_layout )
-        if full_layout == 0
-            full_layout = Int(HorizontalFitting)
-        elseif full_layout == -1
-            full_layout = 0
-        else
-            full_layout = ( full_layout & 63 ) | Int(HorizontalSmushing)
+        if full_layout == -2
+            full_layout = old_layout
+            if full_layout == 0
+                full_layout = Int(HorizontalFitting)
+            elseif full_layout == -1
+                full_layout = 0
+            else
+                full_layout = ( full_layout & 63 ) | Int(HorizontalSmushing)
+            end
         end
         height < 1 && ( height = 1 )
         max_length < 1 && ( max_length = 1 )
