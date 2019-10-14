@@ -489,6 +489,7 @@ function render(io, text::AbstractString, ff::FIGletFont)
         for c in word
             current = addchar(current, ff.font_characters[c].thechar, ff.header)
         end
+        current = addchar(current, ff.font_characters[' '].thechar, ff.header)
         push!(words, current)
     end
 
@@ -509,6 +510,7 @@ function render(io, text::AbstractString, ff::FIGletFont)
         nrows, ncols = size(line)
         for r in 1:nrows
             s = join(line[r, :])
+            s = replace(s, '\$'=>' ')
             print(io, s)
             println(io)
         end
