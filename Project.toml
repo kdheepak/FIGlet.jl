@@ -1,13 +1,15 @@
 name = "FIGlet"
 uuid = "3064a664-84fe-4d92-92c7-ed492f3d8fae"
 authors = ["Dheepak Krishnamurthy"]
-version = "0.2.0"
+version = "0.2.1"
 
 [deps]
+BinaryProvider = "b99e7846-7c00-51b0-8f62-c81ae34c0232"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 
 [compat]
 julia = "1"
+BinaryProvider = "^0"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
