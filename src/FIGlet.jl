@@ -304,7 +304,7 @@ function smushem(lch::Char, rch::Char, fh::FIGletHeader)
 
     smushmode = fh.full_layout
     hardblank = fh.hardblank
-    print_direction = fh.print_direction
+    right2left = fh.print_direction
 
     lch==' ' && return rch
     rch==' ' && return lch
@@ -322,7 +322,7 @@ function smushem(lch::Char, rch::Char, fh::FIGletHeader)
         if rch == hardblank return lch end
 
         # Ensures that the dominant (foreground) fig-character for overlapping is the latter in the user's text, not necessarily the rightmost character.
-        if print_direction == 1 return lch end
+        if right2left == 1 return lch end
 
         # Catch all exceptions
         return rch
@@ -379,9 +379,8 @@ end
 
 function smushamount(current::Matrix{Char}, thechar::Matrix{Char}, fh::FIGletHeader)
 
-    fh.print_direction == 1 && error("Not implemented yet.")
-
     smushmode = fh.full_layout
+    right2left = fh.print_direction
 
     if (smushmode & (Int(HorizontalSmushing::Layout) | Int(HorizontalFitting::Layout)) == 0)
         return 0
@@ -399,27 +398,53 @@ function smushamount(current::Matrix{Char}, thechar::Matrix{Char}, fh::FIGletHea
         cr = '\0'
         linebd = 0
         charbd = 0
-        for col_l in ncols_l:-1:1
-            cl = current[row, col_l]
-            if col_l > 1 && ( cl == '\0' || cl == ' ' )
-                linebd += 1
-                continue
-            else
-                break
+        if right2left == 1
+            if maximum_smush > ncols_l
+                maximum_smush = ncols_l
             end
-        end
 
-        for col_r in 1:ncols_r
-            cr = thechar[row, col_r]
-            if cr == ' '
-                charbd += 1
-                continue
-            else
-                break
+            for col_r in ncols_r:-1:1
+                cr = thechar[row, col_r]
+                if cr == ' '
+                    charbd += 1
+                    continue
+                else
+                    break
+                end
+            end
+            for col_l in 1:ncols_l
+                cl = current[row, col_l]
+                if cl == '\0' || cl == ' '
+                    linebd += 1
+                    continue
+                else
+                    break
+                end
+            end
+        else
+            for col_l in ncols_l:-1:1
+                cl = current[row, col_l]
+                if col_l > 1 && ( cl == '\0' || cl == ' ' )
+                    linebd += 1
+                    continue
+                else
+                    break
+                end
+            end
+
+            for col_r in 1:ncols_r
+                cr = thechar[row, col_r]
+                if cr == ' '
+                    charbd += 1
+                    continue
+                else
+                    break
+                end
             end
         end
 
         smush = linebd + charbd
+
         if cl == '\0' || cl == ' '
             smush += 1
         elseif (cr != '\0')
@@ -437,26 +462,46 @@ end
 
 function addchar(current::Matrix{Char}, thechar::Matrix{Char}, fh::FIGletHeader)
 
+    right2left = fh.print_direction
+
     current = copy(current)
+    thechar = copy(thechar)
     maximum_smush = smushamount(current, thechar, fh)
 
     _, ncols_l = size(current)
-    nrows_r, _ = size(thechar)
+    nrows_r, ncols_r = size(thechar)
 
     for row in 1:nrows_r
-
-      for smush in 1:maximum_smush
-          col_l = ncols_l - maximum_smush + smush
-          col_l < 1 && ( col_l = 1 )
-          current[row, col_l] = smushem(current[row, col_l], thechar[row, smush], fh)
-      end
+        if right2left == 1
+            for smush in 1:maximum_smush
+                col_r = ncols_r - maximum_smush + smush
+                col_r < 1 && ( col_r = 1 )
+                thechar[row, col_r] = smushem(thechar[row, col_r], current[row, smush], fh)
+            end
+        else
+            for smush in 1:maximum_smush
+                col_l = ncols_l - maximum_smush + smush
+                col_l < 1 && ( col_l = 1 )
+                current[row, col_l] = smushem(current[row, col_l], thechar[row, smush], fh)
+            end
+        end
 
     end
+    if right2left == 1
+        current = hcat(
+                       thechar,
+                       current[:, ( maximum_smush + 1 ):end],
+                      )
 
-    current = hcat(
-                   current,
-                   thechar[:, ( maximum_smush + 1 ):end]
-                  )
+    else
+        current = hcat(
+                       current,
+                       thechar[:, ( maximum_smush + 1 ):end],
+                      )
+    end
+
+    return current
+
 end
 
 function render(io, text::AbstractString, ff::FIGletFont)
@@ -476,11 +521,19 @@ function render(io, text::AbstractString, ff::FIGletFont)
     current = fill('\0', ff.header.height, 0)
     for word in words
         if size(current)[2] + size(word)[2] < WIDTH
-            current = hcat(current, word)
+            if ff.header.print_direction == 1
+                current = hcat(word, current)
+            else
+                current = hcat(current, word)
+            end
         else
             push!(lines, current)
             current = fill('\0', ff.header.height, 0)
-            current = hcat(current, word)
+            if ff.header.print_direction == 1
+                current = hcat(word, current)
+            else
+                current = hcat(current, word)
+            end
         end
     end
     push!(lines, current)
