@@ -508,13 +508,27 @@ function render(io, text::AbstractString, ff::FIGletFont)
     (HEIGHT, WIDTH) = Base.displaysize(io)
 
     words = Matrix{Char}[]
-    for word in split(text)
+    if !occursin(" ", text)
         current = fill(' ', ff.header.height, 1)
-        for c in word
+        for c in text
             current = addchar(current, ff.font_characters[c].thechar, ff.header)
         end
-        current = addchar(current, ff.font_characters[' '].thechar, ff.header)
         push!(words, current)
+    else
+        for word in split(text)
+            current = fill(' ', ff.header.height, 1)
+            for c in word
+                current = addchar(current, ff.font_characters[c].thechar, ff.header)
+            end
+            current = addchar(current, ff.font_characters[' '].thechar, ff.header)
+            if all(current[:, end] .== '\$')
+                current[:, end] .= ' '
+            end
+            if all(current[:, 1] .== '\$')
+                current[:, 1] .= ' '
+            end
+            push!(words, current)
+        end
     end
 
     lines = Matrix{Char}[]
@@ -542,7 +556,7 @@ function render(io, text::AbstractString, ff::FIGletFont)
         nrows, ncols = size(line)
         for r in 1:nrows
             s = join(line[r, :])
-            s = replace(s, '\$'=>' ') |> rstrip
+            s = rstrip(s)
             print(io, s)
             println(io)
         end
