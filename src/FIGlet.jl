@@ -542,7 +542,7 @@ function render(io, text::AbstractString, ff::FIGletFont)
         nrows, ncols = size(line)
         for r in 1:nrows
             s = join(line[r, :])
-            s = replace(s, '\$'=>' ') |> rstrip
+            s = replace(s, ff.header.hardblank=>' ') |> rstrip
             print(io, s)
             println(io)
         end
