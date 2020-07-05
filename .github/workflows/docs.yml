@@ -18,6 +18,10 @@ jobs:
         os: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v1.0.0
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
       - uses: julia-actions/setup-julia@latest
         with:
           version: ${{ matrix.julia-version }}
