@@ -26,8 +26,7 @@ jobs:
       - uses: julia-actions/julia-buildpkg@latest
       - uses: julia-actions/julia-runtest@latest
       - uses: julia-actions/julia-uploadcodecov@master
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      - uses: julia-actions/julia-uploadcoveralls@master
-        env:
-          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+      - uses: codecov/codecov-action@v2
+        with:
+          verbose: true
+          files: lcov.info
