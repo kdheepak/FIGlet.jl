@@ -229,7 +229,7 @@ function readfont(io)
         end
     end
 
-    while bytesavailable(io) > 1
+    while !eof(io)
         s = readline(io)
         strip(s) == "" && continue
         s = split(s)[1]

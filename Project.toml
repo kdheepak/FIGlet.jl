@@ -1,7 +1,7 @@
 name = "FIGlet"
 uuid = "3064a664-84fe-4d92-92c7-ed492f3d8fae"
 authors = ["Dheepak Krishnamurthy"]
-version = "0.2.1"
+version = "0.2.2"
 
 [deps]
 BinaryProvider = "b99e7846-7c00-51b0-8f62-c81ae34c0232"
