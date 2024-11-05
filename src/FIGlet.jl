@@ -544,9 +544,9 @@ function render(io, text::AbstractString, ff::FIGletFont)
             s = join(line[r, :])
             s = replace(s, ff.header.hardblank=>' ') |> rstrip
             print(io, s)
-            println(io)
+            print(io, '\n')
         end
-        println(io)
+        print(io, '\n')
     end
 
 end
