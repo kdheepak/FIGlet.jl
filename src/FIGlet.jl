@@ -1,6 +1,6 @@
 module FIGlet
 
-using Pkg.Artifacts
+using Artifacts
 import Base
 
 const FONTSDIR = abspath(normpath(joinpath(artifact"fonts", "FIGletFonts-0.5.0", "fonts")))
