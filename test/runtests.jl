@@ -37,7 +37,7 @@ end
 
     iob = IOBuffer()
     FIGlet.render(iob, "the quick brown fox jumps over the lazy dog", "standard")
-    @test String(take!(iob)) == raw"""
+    prerendered = raw"""
  _   _                        _      _      _
 | |_| |__   ___    __ _ _   _(_) ___| | __ | |__  _ __ _____      ___ __
 | __| '_ \ / _ \  / _` | | | | |/ __| |/ / | '_ \| '__/ _ \ \ /\ / / '_ \
@@ -60,10 +60,12 @@ end
                               |___/               |___/
 
 """
+    rendered = String(take!(iob))
+    @test rendered == replace(prerendered, "\r\n" => "\n")
 
     iob = IOBuffer()
     FIGlet.render(iob, uppercase("the quick brown fox jumps over the lazy dog"), "standard")
-    @test String(take!(iob)) == raw"""
+    prerendered = raw"""
  _____ _   _ _____    ___  _   _ ___ ____ _  __
 |_   _| | | | ____|  / _ \| | | |_ _/ ___| |/ /
   | | | |_| |  _|   | | | | | | || | |   | ' /
@@ -93,10 +95,13 @@ end
 
 
 """
+    rendered  = String(take!(iob))
+    @test rendered == replace(prerendered, "\r\n" => "\n")
+
 
     iob = IOBuffer()
     FIGlet.render(iob, "the quick brown fox jumps over the lazy dog", "mirror")
-    @test String(take!(iob)) == raw"""
+    prerendered = raw"""
                               _      _      _                        _   _
    __ ___      _____ __ _  __| | __ | |___ (_)_   _ _ __    ___   __| |_| |
   / _` \ \ /\ / / _ \__` |/ _` | \ \| |__ \| | | | | '_ \  / _ \ / _` |__ |
@@ -119,10 +124,12 @@ end
   \___|               \___|
 
 """
+    rendered = String(take!(iob))
+    @test rendered == replace(prerendered, "\r\n" => "\n")
 
     iob = IOBuffer()
     FIGlet.render(iob, uppercase("the quick brown fox jumps over the lazy dog"), "mirror")
-    @test String(take!(iob)) == raw"""
+    prerendered = raw"""
  __  _ ____ ___ _   _  ___    _____ _   _ _____
  \ \| |___ \_ _| | | |/ _ \  |____ | | | |_   _|
   \ ` |   | | || | | | | | |   |_  | |_| | | |
@@ -152,6 +159,8 @@ end
 
 
 """
+    rendered = String(take!(iob))
+    @test rendered == replace(prerendered, "\r\n" => "\n")
 
     @testset "Render all fonts" begin
 

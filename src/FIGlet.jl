@@ -1,6 +1,6 @@
 module FIGlet
 
-using Pkg.Artifacts
+using Artifacts
 import Base
 
 const FONTSDIR = abspath(normpath(joinpath(artifact"fonts", "FIGletFonts-0.5.0", "fonts")))
@@ -544,9 +544,9 @@ function render(io, text::AbstractString, ff::FIGletFont)
             s = join(line[r, :])
             s = replace(s, ff.header.hardblank=>' ') |> rstrip
             print(io, s)
-            println(io)
+            print(io, '\n')
         end
-        println(io)
+        print(io, '\n')
     end
 
 end
